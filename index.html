@@ -18,7 +18,7 @@
 
 .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-/* Interface de parcours et de niveaux : typographie et composants inspirés des plateformes d'apprentissage type Secure Code Game. */
+/* Interface de parcours et de niveaux. */
 :root{
  --ink:#1f2328;--ink2:#32383f;--paper:#ffffff;--white:#fff;--muted:#656d76;--line:#d1d9e0;
  --lime:#dbeafe;--lime2:#0969da;--coral:#bf3989;--blue:#0969da;--soft:#f6f8fa;
@@ -167,7 +167,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 .footer{background:#f6f8fa;border-top:1px solid #d1d9e0;padding:16px 0 22px;font-size:.8rem}
 .footer button{color:#0969da}
 .toast{border:1px solid #30363d;border-radius:6px;background:#1f2328;box-shadow:0 8px 24px rgba(31,35,40,.22);font-weight:600}
-/* Sidebar de navigation du parcours, inspirée de la progression par niveaux de Secure Code Game. */
+/* Navigation latérale du parcours. */
 .learning-layout{display:grid;grid-template-columns:238px minmax(0,1fr);gap:24px;align-items:start}
 .learning-content{min-width:0}
 .path-sidebar{position:sticky;top:82px;max-height:calc(100vh - 98px);overflow:auto;border:1px solid #d1d9e0;border-radius:7px;background:#fff;padding:0 0 12px}
@@ -246,59 +246,7 @@ function renderHome(){
  updateScore();
 }
 
-const tpSetup=`-- Préparation de la base du TP : schéma initial AVANT la migration du prix
-CREATE TABLE CATEGORIE (
-  CODECAT CHAR(5) PRIMARY KEY,
-  NOMCAT VARCHAR2(35) NOT NULL,
-  PRIX NUMBER(10,2)
-);
 
-CREATE TABLE MAGASIN (
-  NUMMAG CHAR(3) PRIMARY KEY,
-  NOMMAG VARCHAR2(50) NOT NULL UNIQUE
-);
-
-CREATE TABLE ARTICLE (
-  NUMART CHAR(6) PRIMARY KEY,
-  CODECAT CHAR(5) NOT NULL,
-  NOMART VARCHAR2(50) NOT NULL,
-  UNITECONS VARCHAR2(20) DEFAULT 'pièce' NOT NULL,
-  CONSTRAINT FK_ART_CAT FOREIGN KEY (CODECAT) REFERENCES CATEGORIE(CODECAT)
-);
-
-CREATE TABLE VENTE (
-  NUMMAG CHAR(3) NOT NULL,
-  DATEV DATE NOT NULL,
-  NUMART CHAR(6) NOT NULL,
-  QTEV NUMBER(6) NOT NULL CHECK (QTEV BETWEEN 0 AND 9999),
-  CONSTRAINT PK_VENTE PRIMARY KEY (NUMMAG, DATEV, NUMART),
-  CONSTRAINT FK_VENTE_MAG FOREIGN KEY (NUMMAG) REFERENCES MAGASIN(NUMMAG),
-  CONSTRAINT FK_VENTE_ART FOREIGN KEY (NUMART) REFERENCES ARTICLE(NUMART)
-);
-
--- Exemples de données : exécuter après la création des 4 tables
-INSERT INTO CATEGORIE (CODECAT, NOMCAT, PRIX) VALUES ('CAT01', 'Alimentation', 0);
-INSERT INTO CATEGORIE (CODECAT, NOMCAT, PRIX) VALUES ('CAT02', 'Hygiène', 0);
-INSERT INTO CATEGORIE (CODECAT, NOMCAT, PRIX) VALUES ('CAT03', 'Habillement', 0);
-
-INSERT INTO MAGASIN (NUMMAG, NOMMAG) VALUES ('MCD', 'Magasin du Centre');
-INSERT INTO MAGASIN (NUMMAG, NOMMAG) VALUES ('MC1', 'Magasin Central 1');
-INSERT INTO MAGASIN (NUMMAG, NOMMAG) VALUES ('MC2', 'Magasin Central 2');
-
-INSERT INTO ARTICLE (NUMART, CODECAT, NOMART, UNITECONS) VALUES ('ARTA01', 'CAT01', 'Eau en bouteille', 'pièce');
-INSERT INTO ARTICLE (NUMART, CODECAT, NOMART, UNITECONS) VALUES ('ARTA02', 'CAT01', 'Riz en sac', 'sac');
-INSERT INTO ARTICLE (NUMART, CODECAT, NOMART, UNITECONS) VALUES ('ARTH01', 'CAT02', 'Savon', 'pièce');
-INSERT INTO ARTICLE (NUMART, CODECAT, NOMART, UNITECONS) VALUES ('ARTV01', 'CAT03', 'Chemise', 'pièce');
-INSERT INTO ARTICLE (NUMART, CODECAT, NOMART, UNITECONS) VALUES ('ARTU01', 'CAT01', 'Biscuit en paquet', 'pièce'); -- Article non encore vendu pour le projet avancé
-
-INSERT INTO VENTE (NUMMAG, DATEV, NUMART, QTEV) VALUES ('MCD', TO_DATE('2026-06-12','YYYY-MM-DD'), 'ARTA01', 12);
-INSERT INTO VENTE (NUMMAG, DATEV, NUMART, QTEV) VALUES ('MCD', TO_DATE('2026-06-12','YYYY-MM-DD'), 'ARTA02', 5);
-INSERT INTO VENTE (NUMMAG, DATEV, NUMART, QTEV) VALUES ('MC1', TO_DATE('2026-06-12','YYYY-MM-DD'), 'ARTH01', 18);
-INSERT INTO VENTE (NUMMAG, DATEV, NUMART, QTEV) VALUES ('MC2', TO_DATE('2026-06-14','YYYY-MM-DD'), 'ARTA01', 8);
-INSERT INTO VENTE (NUMMAG, DATEV, NUMART, QTEV) VALUES ('MC2', TO_DATE('2026-06-14','YYYY-MM-DD'), 'ARTV01', 2);
-INSERT INTO VENTE (NUMMAG, DATEV, NUMART, QTEV) VALUES ('MCD', TO_DATE('2026-06-14','YYYY-MM-DD'), 'ARTH01', 7);
-
-COMMIT;`;
 const sqlTasks=[
 {id:'tp1',n:1,title:'Déplacer la notion de prix vers ARTICLE',points:10,desc:'Supprime PRIX de CATEGORIE, ajoute PRIXART à ARTICLE puis renseigne au moins deux prix avec UPDATE.',hint:'Il faut deux opérations de structure ALTER TABLE, puis des mises à jour UPDATE filtrées par NUMART. Vérifie les codes d’articles avant de fixer les prix.',solution:`ALTER TABLE CATEGORIE DROP COLUMN PRIX;
 ALTER TABLE ARTICLE ADD PRIXART NUMBER(10,2);
@@ -677,9 +625,7 @@ function renderSQL(activeLesson='tp-start'){
  const allProjects=[...sqlTasks,...project2Tasks,...project3Tasks,...project4Tasks];
  document.getElementById('app').innerHTML=`${pageIntro('PARCOURS BASES DE DONNÉES','Comprendre les bases. Maîtriser les requêtes.','Un parcours guidé : commence par le TP de gestion commerciale, consolide les commandes SQL, puis entraîne-toi sur l’algèbre relationnelle, les jointures et la normalisation.',`${state.points}`,'points gagnés')}
  <section class="step-grid"><div class="step"><div class="step-num">1</div><h3>Créer les tables</h3><p><code>CREATE TABLE</code> définit les colonnes, les types et les contraintes.</p></div><div class="step"><div class="step-num">2</div><h3>Remplir les tables</h3><p><code>INSERT INTO</code> ajoute les catégories, articles, magasins et ventes.</p></div><div class="step"><div class="step-num">3</div><h3>Exécuter les requêtes</h3><p><code>SELECT</code> lit les données ; filtres, jointures et agrégats répondent aux questions.</p></div></section>
- <div class="callout"><div>!</div><div><strong>Préparation du TP</strong><br>Le script ci-dessous est un jeu de données d’entraînement inspiré des quatre tables du TP. Exécute-le une seule fois dans un schéma Oracle vierge. Dans Oracle APEX, utilise SQL Scripts pour lancer un script complet, ou exécute les instructions séparément dans SQL Commands. Si ces tables existent déjà, ne relance pas les CREATE TABLE.</div></div>
- <section class="section-anchor" id="tp-setup"><div class="subsection-head"><div><div class="kicker">AVANT LE QUIZ</div><h2>Préparer la base du TP</h2></div><p>La table CATEGORIE et la table MAGASIN précèdent ARTICLE ; VENTE vient après, car elle référence les articles et les magasins.</p></div>${codeBox(tpSetup,'Script Oracle — création et données de départ')}</section>
- ${taskGroup('Quiz 1 — Réaliser le TP du ZIP','Résous les sept demandes dans l’ordre. Essaie d’abord sans correction : les points s’ajoutent à mesure que les éléments essentiels sont trouvés.',sqlTasks,'tp')}
+ ${taskGroup('Quiz 1 — TP de gestion commerciale','Résous les sept demandes dans l’ordre. Essaie d’abord sans correction : les points s’ajoutent à mesure que les éléments essentiels sont trouvés.',sqlTasks,'tp')}
  <hr class="section-divider"><section id="sql-lessons" class="section-anchor"><div class="subsection-head"><div><div class="kicker">COURS ET RAPPELS</div><h2>Les notions à maîtriser</h2></div><p>Étudie l’explication, regarde les exemples Oracle, puis marque la leçon comme étudiée.</p></div><div class="lesson-layout" id="lesson-focus">${lessonBody(active,'sql')}${lessonSidebar(sqlLessons,active.id,'sql')}</div></section>
  <section class="section-anchor" id="projects"><div class="subsection-head"><div><div class="kicker">APPRENTISSAGE PROGRESSIF</div><h2>Les projets suivants</h2></div><p>Chaque projet réutilise les commandes vues précédemment et ajoute un nouveau niveau de difficulté.</p></div>${taskGroup('Projet 2 — Créer et contraindre','CREATE TABLE, clé primaire, UNIQUE, INSERT et LIKE.',project2Tasks,'p2')}${taskGroup('Projet 3 — Filtrer et agréger','BETWEEN, IN, GROUP BY et HAVING.',project3Tasks,'p3')}${taskGroup('Projet 4 — Modifier et raisonner','UPDATE ciblé, ADD CONSTRAINT, DELETE sûr et sous-requêtes.',project4Tasks,'p4')}</section>
  <section class="section-anchor" id="sql-qcm"><div class="subsection-head"><div><div class="kicker">VÉRIFIER LA COMPRÉHENSION</div><h2>QCM — théorie et subtilités</h2></div><p>${sqlQuestions.length} questions · 3 points par bonne réponse · la correction explique pourquoi.</p></div><div class="pill-row"><span>Commandes SQL</span><span>Contraintes</span><span>Algèbre relationnelle</span><span>Normalisation</span><span>Pièges Oracle</span></div>${sqlQuestions.map(q=>questionCard(q,'sql')).join('')}</section>
